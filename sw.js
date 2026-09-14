@@ -1,13 +1,8 @@
-const CACHE_NAME = "soriafitness-cache-v1";
+const CACHE_NAME = "soriafitness-cache-v2";
 const ASSETS = [
-  "./",
-  "./index.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
-  "https://unpkg.com/react@18/umd/react.production.min.js",
-  "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
-  "https://unpkg.com/@babel/standalone/babel.min.js",
 ];
 
 self.addEventListener("install", (event) => {
@@ -26,18 +21,17 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Estrategia "red primero": siempre intenta cargar la versión más reciente.
+// Si no hay conexión, entonces sí usa la copia guardada (para que funcione offline).
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
-          return response;
-        })
-        .catch(() => cached);
-    })
+    fetch(event.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
