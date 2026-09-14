@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>soriafitness</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="soriafitness" />
+<meta name="theme-color" content="#0D0E10" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  :root{
+    --bg:#0D0E10; --surface:#17181B; --surface-2:#1F2023; --text:#F1EFE9; --muted:#8B8E94;
+    --line:#292A2E; --orange:#FF7A45; --orange-ink:#1C0D05; --teal:#3FD0B8; --gold:#F4BE4F; --violet:#A896FF; --red:#FF5D5D;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:#000;}
+  body{font-family:'Inter',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
+  .ht-outer{min-height:100vh;background:#000;display:flex;justify-content:center;}
+  .ht-app{width:100%;max-width:460px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:92px;}
+  button{font-family:inherit;cursor:pointer;}
+  input, select, textarea{font-family:inherit;color:inherit;}
+  input:focus, select:focus, textarea:focus{outline:none;}
+  .ht-topbar{display:flex;align-items:baseline;justify-content:space-between;padding:22px 20px 16px;}
+  .ht-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:-0.01em;color:var(--text);}
+  .ht-brand span{color:var(--orange);}
+  .ht-today-pill{font-size:0.78rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .ht-section{padding:4px 20px 30px;}
+  .ht-screen-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.3rem;margin:6px 0 22px;}
+  .ht-h2{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 12px;color:var(--muted);}
+  .ht-stats-row{display:flex;gap:24px;margin-bottom:28px;}
+  .ht-stat-number{font-family:'Space Grotesk',sans-serif;font-weight:700;font-variant-numeric:tabular-nums;font-size:2rem;line-height:1;display:flex;align-items:center;gap:6px;}
+  .ht-stat-label{font-size:0.72rem;color:var(--muted);margin-top:5px;}
+  .ht-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .ht-cal-nav-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.95rem;}
+  .ht-cal-nav button{background:none;border:none;color:var(--text);padding:4px;display:flex;align-items:center;}
+  .ht-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .ht-cal-dow{text-align:center;font-size:0.66rem;color:var(--muted);padding-bottom:4px;}
+  .ht-cal-cell{position:relative;aspect-ratio:1;border-radius:6px;border:1px solid transparent;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-variant-numeric:tabular-nums;background:var(--surface);color:var(--text);}
+  .ht-cal-cell.empty{visibility:hidden;background:transparent;}
+  .ht-cal-cell.trained{background:var(--orange);color:var(--orange-ink);font-weight:600;}
+  .ht-cal-cell.planned{border:1px dashed var(--line);color:var(--muted);background:transparent;}
+  .ht-cal-cell.today{box-shadow:0 0 0 2px var(--teal) inset;}
+  .ht-cal-dot{position:absolute;bottom:3px;width:3px;height:3px;border-radius:50%;background:var(--muted);}
+  .ht-cal-cell.trained .ht-cal-dot{background:var(--orange-ink);}
+  .ht-row{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);gap:12px;}
+  .ht-row:last-child{border-bottom:none;}
+  .ht-row-title{font-weight:600;font-size:0.95rem;}
+  .ht-row-sub{font-size:0.78rem;color:var(--muted);margin-top:2px;}
+  .ht-row-actions{display:flex;gap:10px;flex-shrink:0;}
+  .ht-icon-btn{background:none;border:none;color:var(--muted);padding:4px;display:flex;}
+  .ht-icon-btn.danger:hover{color:var(--red);}
+  .ht-tag{font-size:0.68rem;padding:3px 9px;border-radius:20px;font-weight:600;}
+  .ht-tag.violet{background:rgba(168,150,255,0.15);color:var(--violet);}
+  .ht-btn{border-radius:8px;padding:13px 18px;font-weight:600;font-size:0.9rem;border:1px solid var(--line);background:var(--surface);color:var(--text);display:inline-flex;align-items:center;gap:8px;}
+  .ht-btn.ghost{background:transparent;}
+  .ht-btn.accent{background:var(--orange);border-color:var(--orange);color:var(--orange-ink);}
+  .ht-btn.full{width:100%;justify-content:center;}
+  .ht-btn.small{padding:9px 13px;font-size:0.78rem;}
+  .ht-field{margin-bottom:16px;}
+  .ht-label{font-size:0.76rem;color:var(--muted);margin-bottom:6px;display:block;}
+  .ht-input, .ht-select, .ht-textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font-size:0.95rem;color:var(--text);}
+  .ht-input:focus, .ht-select:focus, .ht-textarea:focus{border-color:var(--orange);}
+  .ht-textarea{resize:vertical;min-height:64px;font-family:'Inter',sans-serif;}
+  .ht-num{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;text-align:center;}
+  .ht-empty{padding:26px 0;text-align:center;color:var(--muted);font-size:0.86rem;line-height:1.55;}
+  .ht-ex-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer;}
+  .ht-ex-row:last-child{border-bottom:none;}
+  .ht-ex-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--line);}
+  .ht-ex-dot.done{background:var(--teal);}
+  .ht-quickrow{display:flex;justify-content:space-between;align-items:center;padding:14px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);margin-bottom:10px;cursor:pointer;}
+  .ht-quickrow .icon-wrap{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ht-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;background:var(--bg);border-top:1px solid var(--line);z-index:40;}
+  .ht-nav-inner{width:100%;max-width:460px;display:flex;}
+  .ht-nav-btn{flex:1;background:none;border:none;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:0.6rem;font-weight:500;}
+  .ht-nav-btn.active{color:var(--orange);}
+  .ht-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:flex-end;z-index:50;}
+  .ht-sheet{width:100%;max-width:460px;max-height:88vh;overflow-y:auto;background:var(--surface);border-radius:18px 18px 0 0;padding:20px 20px 28px;animation:ht-slide-up 0.2s ease-out;border-top:1px solid var(--line);}
+  @keyframes ht-slide-up{from{transform:translateY(24px);opacity:0.6;}to{transform:translateY(0);opacity:1;}}
+  .ht-sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .ht-sheet-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.05rem;}
+  .ht-exercise-block{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--surface-2);}
+  .ht-set-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .ht-set-row .idx{width:24px;font-size:0.72rem;color:var(--muted);flex-shrink:0;}
+  .ht-set-row input{width:100%;}
+  .ht-set-row .x{font-size:0.8rem;color:var(--muted);}
+  .ht-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:20px;font-size:0.82rem;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+  .ht-confirm{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--red);}
+  .ht-confirm button{background:none;border:none;color:var(--red);font-weight:600;font-size:0.78rem;}
+  .ht-chart-wrap{width:100%;height:150px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+
+const { useState, useEffect, useMemo, useCallback } = React;
+
+/* ---------- utilidades de fecha ---------- */
+const WEEKDAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+const WEEKDAYS_SHORT = ["L","M","X","J","V","S","D"];
+const MONTHS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function pad(n){return String(n).padStart(2,"0");}
+function toKey(date){return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;}
+function keyToDate(key){const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d);}
+function todayKey(){return toKey(new Date());}
+function mondayIndex(date){return (date.getDay()+6)%7;}
+function addDays(date,n){const d=new Date(date); d.setDate(d.getDate()+n); return d;}
+function uid(){return Math.random().toString(36).slice(2,10);}
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function formatLongDate(key){const d=keyToDate(key); return `${WEEKDAYS[mondayIndex(d)]}, ${d.getDate()} de ${MONTHS[d.getMonth()]}`;}
+function formatShortDate(key){const d=keyToDate(key); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;}
+
+/* ---------- iconos propios (sin dependencias externas) ---------- */
+function Icon({name, size=18, color="currentColor", style, fill}){
+  const common = {width:size, height:size, viewBox:"0 0 24 24", fill: fill||"none", stroke:color, strokeWidth:2, strokeLinecap:"round", strokeLinejoin:"round", style};
+  switch(name){
+    case "calendar": return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>;
+    case "dumbbell": return <svg {...common}><line x1="4" y1="12" x2="20" y2="12"/><rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/></svg>;
+    case "list": return <svg {...common}><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.3" fill={color}/><circle cx="4" cy="12" r="1.3" fill={color}/><circle cx="4" cy="18" r="1.3" fill={color}/></svg>;
+    case "week": return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="8,15 10,17 15,12"/></svg>;
+    case "trend": return <svg {...common}><polyline points="3,17 9,10 13,14 21,5"/></svg>;
+    case "plus": return <svg {...common}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+    case "x": return <svg {...common}><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>;
+    case "pencil": return <svg {...common}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
+    case "trash": return <svg {...common}><polyline points="3,6 5,6 21,6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0-1 14a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 6"/></svg>;
+    case "chevronLeft": return <svg {...common}><polyline points="15,18 9,12 15,6"/></svg>;
+    case "chevronRight": return <svg {...common}><polyline points="9,18 15,12 9,6"/></svg>;
+    case "flame": return <svg {...common} fill={color} stroke="none"><path d="M12 2c1 4-4 5-4 9a4 4 0 0 0 8 0c0-2-1-3-1-3s2 1 2 4a6 6 0 0 1-12 0c0-5 4-6 5-10Z"/></svg>;
+    case "save": return <svg {...common}><path d="M5 3h11l3 3v15H5z"/><rect x="8" y="3" width="6" height="5"/><rect x="7" y="13" width="10" height="7"/></svg>;
+    case "undo": return <svg {...common}><polyline points="3,7 3,13 9,13"/><path d="M3 13a9 9 0 1 0 2.6-6.4L3 9"/></svg>;
+    case "download": return <svg {...common}><path d="M12 3v12"/><polyline points="6,11 12,17 18,11"/><line x1="4" y1="21" x2="20" y2="21"/></svg>;
+    case "upload": return <svg {...common}><path d="M12 21V9"/><polyline points="6,13 12,7 18,13"/><line x1="4" y1="21" x2="20" y2="21"/></svg>;
+    case "check": return <svg {...common}><polyline points="4,12 9,18 20,6"/></svg>;
+    case "weight": return <svg {...common}><circle cx="12" cy="12" r="8"/><path d="M9 15c1-2 5-2 6 0"/></svg>;
+    case "note": return <svg {...common}><path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><line x1="9" y1="9" x2="16" y2="9"/><line x1="9" y1="13" x2="16" y2="13"/></svg>;
+    default: return null;
+  }
+}
+
+/* ---------- toast ---------- */
+function useToast(){
+  const [msg, setMsg] = useState(null);
+  const show = useCallback((text)=>{ setMsg(text); setTimeout(()=>setMsg(null), 2200); }, []);
+  const node = msg ? <div className="ht-toast">{msg}</div> : null;
+  return [node, show];
+}
+
+/* ---------- sheet genérico ---------- */
+function Sheet({title, onClose, children}){
+  return (
+    <div className="ht-overlay" onClick={onClose}>
+      <div className="ht-sheet" onClick={(e)=>e.stopPropagation()}>
+        <div className="ht-sheet-head">
+          <div className="ht-sheet-title">{title}</div>
+          <button className="ht-icon-btn" onClick={onClose}><Icon name="x" size={20} /></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- editor de rutina ---------- */
+function TemplateEditor({initial, onSave, onCancel}){
+  const [name, setName] = useState(initial?.name || "");
+  const [exercises, setExercises] = useState(
+    initial?.exercises?.length ? initial.exercises.map(e=>({...e})) : [{id:uid(), name:"", sets:3, reps:"10"}]
+  );
+  function updateExercise(id, field, value){ setExercises(ex=>ex.map(e=>e.id===id?{...e,[field]:value}:e)); }
+  function addExercise(){ setExercises(ex=>[...ex, {id:uid(), name:"", sets:3, reps:"10"}]); }
+  function removeExercise(id){ setExercises(ex=>ex.filter(e=>e.id!==id)); }
+  function handleSave(){
+    if(!name.trim()) return;
+    const clean = exercises.filter(e=>e.name.trim()).map(e=>({...e, sets:Number(e.sets)||1}));
+    if(clean.length===0) return;
+    onSave({id: initial?.id || uid(), name: name.trim(), exercises: clean});
+  }
+  return (
+    <Sheet title={initial ? "Editar rutina" : "Nueva rutina"} onClose={onCancel}>
+      <div className="ht-field">
+        <label className="ht-label">Nombre de la rutina</label>
+        <input className="ht-input" value={name} onChange={e=>setName(e.target.value)} placeholder="Ej. Empuje, Tren superior, Full body A" />
+      </div>
+      <label className="ht-label" style={{marginBottom:8}}>Ejercicios</label>
+      {exercises.map(e=>(
+        <div className="ht-exercise-block" key={e.id}>
+          <div style={{display:"flex", gap:8, alignItems:"flex-end"}}>
+            <div style={{flex:1}}>
+              <input className="ht-input" value={e.name} onChange={ev=>updateExercise(e.id,"name",ev.target.value)} placeholder="Nombre del ejercicio" />
+            </div>
+            <button className="ht-icon-btn danger" onClick={()=>removeExercise(e.id)} style={{marginBottom:4}}><Icon name="trash" size={16} /></button>
+          </div>
+          <div style={{display:"flex", gap:14, marginTop:10}}>
+            <div style={{flex:1}}>
+              <label className="ht-label">Series objetivo</label>
+              <input className="ht-input ht-num" type="number" min={1} value={e.sets} onChange={ev=>updateExercise(e.id,"sets",ev.target.value)} />
+            </div>
+            <div style={{flex:1}}>
+              <label className="ht-label">Reps objetivo</label>
+              <input className="ht-input ht-num" value={e.reps} onChange={ev=>updateExercise(e.id,"reps",ev.target.value)} placeholder="8-10" />
+            </div>
+          </div>
+        </div>
+      ))}
+      <button className="ht-btn ghost small" onClick={addExercise} style={{marginBottom:22}}><Icon name="plus" size={15} /> Añadir ejercicio</button>
+      <div style={{display:"flex", gap:10}}>
+        <button className="ht-btn ghost full" onClick={onCancel}>Cancelar</button>
+        <button className="ht-btn accent full" onClick={handleSave}><Icon name="save" size={15} /> Guardar</button>
+      </div>
+    </Sheet>
+  );
+}
+
+/* ---------- registro de entrenamiento ---------- */
+function getLastPerformance(logs, exerciseName, beforeKey){
+  const keys = Object.keys(logs).filter(k=>k<beforeKey).sort().reverse();
+  for(const k of keys){
+    const log = logs[k];
+    if(!log?.exercises) continue;
+    const found = log.exercises.find(e=>e.name.trim().toLowerCase()===exerciseName.trim().toLowerCase());
+    if(found) return found.sets;
+  }
+  return null;
+}
+function buildExercisesFromTemplate(template){
+  if(!template) return [];
+  return template.exercises.map(e=>({id:uid(), name:e.name, sets:Array.from({length:Number(e.sets)||1}, ()=>({reps:"", weight:""}))}));
+}
+function exerciseSummary(ex){
+  const filled = ex.sets.filter(s=>s.reps!==""||s.weight!=="");
+  if(filled.length===0) return `${ex.sets.length} series`;
+  return ex.sets.map(s=>`${s.reps||"–"}×${s.weight||"–"}`).join("  ");
+}
+function isExerciseDone(ex){ return ex.sets.some(s=>s.reps!==""||s.weight!==""); }
+
+function ExerciseSheet({exercise, logs, dateKey, onChange, onRemove, onClose}){
+  const last = getLastPerformance(logs, exercise.name, dateKey);
+  function updateName(value){ onChange({...exercise, name:value}); }
+  function updateSet(idx, field, value){ onChange({...exercise, sets: exercise.sets.map((s,i)=>i===idx?{...s,[field]:value}:s)}); }
+  function addSet(){ onChange({...exercise, sets:[...exercise.sets, {reps:"", weight:""}]}); }
+  function removeSet(idx){ onChange({...exercise, sets: exercise.sets.filter((_,i)=>i!==idx)}); }
+  function useLast(){ if(!last) return; onChange({...exercise, sets: exercise.sets.map((s,i)=>last[i]?{...last[i]}:s)}); }
+  return (
+    <Sheet title="Ejercicio" onClose={onClose}>
+      <div className="ht-field">
+        <input className="ht-input" value={exercise.name} onChange={e=>updateName(e.target.value)} placeholder="Nombre del ejercicio" style={{fontWeight:600}} />
+      </div>
+      {last && (
+        <button className="ht-btn ghost small" style={{marginBottom:14}} onClick={useLast}>
+          <Icon name="undo" size={13} /> Usar última vez ({last.map(s=>`${s.reps||"–"}×${s.weight||"–"}`).join(", ")})
+        </button>
+      )}
+      {exercise.sets.map((s,idx)=>(
+        <div className="ht-set-row" key={idx}>
+          <div className="idx">S{idx+1}</div>
+          <input className="ht-input ht-num" type="number" inputMode="decimal" placeholder="reps" value={s.reps} onChange={e=>updateSet(idx,"reps",e.target.value)} />
+          <div className="x">×</div>
+          <input className="ht-input ht-num" type="number" inputMode="decimal" placeholder="kg" value={s.weight} onChange={e=>updateSet(idx,"weight",e.target.value)} />
+          <button className="ht-icon-btn" onClick={()=>removeSet(idx)}><Icon name="x" size={14} /></button>
+        </div>
+      ))}
+      <button className="ht-btn ghost small" onClick={addSet} style={{marginBottom:22}}><Icon name="plus" size={13} /> Serie</button>
+      <div style={{display:"flex", gap:10}}>
+        <button className="ht-btn ghost full" style={{color:"var(--red)"}} onClick={onRemove}><Icon name="trash" size={15} /> Eliminar ejercicio</button>
+        <button className="ht-btn accent full" onClick={onClose}><Icon name="check" size={15} /> Listo</button>
+      </div>
+    </Sheet>
+  );
+}
+function WeightSheet({value, onSave, onClose}){
+  const [v, setV] = useState(value ?? "");
+  return (
+    <Sheet title="Peso corporal" onClose={onClose}>
+      <div className="ht-field">
+        <label className="ht-label">Kilogramos</label>
+        <input className="ht-input ht-num" type="number" inputMode="decimal" autoFocus value={v} onChange={e=>setV(e.target.value)} placeholder="Ej. 78.5" />
+      </div>
+      <button className="ht-btn accent full" onClick={()=>{ onSave(v.toString().trim()?parseFloat(v):null); onClose(); }}><Icon name="save" size={15} /> Guardar</button>
+    </Sheet>
+  );
+}
+function NotesSheet({value, onSave, onClose}){
+  const [v, setV] = useState(value || "");
+  return (
+    <Sheet title="Anotaciones" onClose={onClose}>
+      <div className="ht-field">
+        <textarea className="ht-textarea" autoFocus value={v} onChange={e=>setV(e.target.value)} placeholder="Sensaciones, dolores, cambios de ejercicio..." />
+      </div>
+      <button className="ht-btn accent full" onClick={()=>{ onSave(v.trim()); onClose(); }}><Icon name="save" size={15} /> Guardar</button>
+    </Sheet>
+  );
+}
+
+function LogForm({dateKey, initialLog, templates, weekPlan, logs, onSave, onCancel}){
+  const defaultTemplateId = weekPlan[mondayIndex(keyToDate(dateKey))] || "";
+  const [templateId, setTemplateId] = useState(initialLog?.templateId ?? defaultTemplateId);
+  const [exercises, setExercises] = useState(()=>{
+    if(initialLog?.exercises?.length) return initialLog.exercises.map(e=>({...e, id:e.id||uid(), sets:e.sets.map(s=>({...s}))}));
+    return buildExercisesFromTemplate(templates.find(t=>t.id===defaultTemplateId));
+  });
+  const [bodyWeight, setBodyWeight] = useState(initialLog?.bodyWeight ?? null);
+  const [notes, setNotes] = useState(initialLog?.notes || "");
+  const [openExerciseId, setOpenExerciseId] = useState(null);
+  const [openWeight, setOpenWeight] = useState(false);
+  const [openNotes, setOpenNotes] = useState(false);
+
+  function handleTemplateChange(id){ setTemplateId(id); setExercises(buildExercisesFromTemplate(templates.find(t=>t.id===id))); }
+  function updateExercise(id, next){ setExercises(exs=>exs.map(e=>e.id===id?next:e)); }
+  function removeExercise(id){ setExercises(exs=>exs.filter(e=>e.id!==id)); setOpenExerciseId(null); }
+  function addAdHocExercise(){ const ex={id:uid(), name:"", sets:[{reps:"", weight:""}]}; setExercises(exs=>[...exs, ex]); setOpenExerciseId(ex.id); }
+  function handleSave(){
+    const cleanExercises = exercises.filter(e=>e.name.trim());
+    const tmpl = templates.find(t=>t.id===templateId);
+    onSave(dateKey, {
+      templateId: templateId || null,
+      templateName: tmpl ? tmpl.name : (cleanExercises.length ? "Personalizado" : null),
+      exercises: cleanExercises, bodyWeight, notes: notes.trim(), trained: cleanExercises.length>0,
+    });
+  }
+  const openExercise = exercises.find(e=>e.id===openExerciseId);
+  return (
+    <div>
+      <div className="ht-field">
+        <label className="ht-label">Rutina</label>
+        <select className="ht-select" value={templateId} onChange={e=>handleTemplateChange(e.target.value)}>
+          <option value="">— Descanso / sin rutina —</option>
+          {templates.map(t=>(<option key={t.id} value={t.id}>{t.name}</option>))}
+        </select>
+      </div>
+      {exercises.map(ex=>(
+        <div className="ht-ex-row" key={ex.id} onClick={()=>setOpenExerciseId(ex.id)}>
+          <div className={`ht-ex-dot ${isExerciseDone(ex)?"done":""}`} />
+          <div style={{flex:1}}>
+            <div className="ht-row-title">{ex.name || "Ejercicio sin nombre"}</div>
+            <div className="ht-row-sub">{exerciseSummary(ex)}</div>
+          </div>
+          <Icon name="chevronRight" size={16} color="var(--muted)" />
+        </div>
+      ))}
+      <button className="ht-btn ghost small" onClick={addAdHocExercise} style={{margin:"14px 0 22px"}}><Icon name="plus" size={15} /> Añadir ejercicio</button>
+      <div className="ht-quickrow" onClick={()=>setOpenWeight(true)}>
+        <div style={{display:"flex", alignItems:"center", gap:12}}>
+          <div className="icon-wrap" style={{background:"rgba(63,208,184,0.15)"}}><Icon name="weight" size={16} color="var(--teal)" /></div>
+          <div><div className="ht-row-title">Peso corporal</div><div className="ht-row-sub">{bodyWeight!=null?`${bodyWeight} kg`:"Sin registrar"}</div></div>
+        </div>
+        <Icon name="chevronRight" size={16} color="var(--muted)" />
+      </div>
+      <div className="ht-quickrow" onClick={()=>setOpenNotes(true)}>
+        <div style={{display:"flex", alignItems:"center", gap:12}}>
+          <div className="icon-wrap" style={{background:"rgba(168,150,255,0.15)"}}><Icon name="note" size={16} color="var(--violet)" /></div>
+          <div><div className="ht-row-title">Anotaciones</div><div className="ht-row-sub">{notes?notes.slice(0,30)+(notes.length>30?"…":""):"Sin anotaciones"}</div></div>
+        </div>
+        <Icon name="chevronRight" size={16} color="var(--muted)" />
+      </div>
+      <div style={{display:"flex", gap:10, marginTop:22}}>
+        {onCancel && <button className="ht-btn ghost full" onClick={onCancel}>Cancelar</button>}
+        <button className="ht-btn accent full" onClick={handleSave}><Icon name="save" size={15} /> Guardar entrenamiento</button>
+      </div>
+      {openExercise && <ExerciseSheet exercise={openExercise} logs={logs} dateKey={dateKey} onChange={next=>updateExercise(openExercise.id,next)} onRemove={()=>removeExercise(openExercise.id)} onClose={()=>setOpenExerciseId(null)} />}
+      {openWeight && <WeightSheet value={bodyWeight} onSave={setBodyWeight} onClose={()=>setOpenWeight(false)} />}
+      {openNotes && <NotesSheet value={notes} onSave={setNotes} onClose={()=>setOpenNotes(false)} />}
+    </div>
+  );
+}
+
+/* ---------- detalle de un día ---------- */
+function DayDetail({dateKey, logs, templates, weekPlan, onClose, onSave, onDelete}){
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const log = logs[dateKey];
+  if(editing){
+    return (
+      <Sheet title={capitalize(formatLongDate(dateKey))} onClose={()=>setEditing(false)}>
+        <LogForm dateKey={dateKey} initialLog={log} templates={templates} weekPlan={weekPlan} logs={logs} onCancel={()=>setEditing(false)} onSave={(k,l)=>{onSave(k,l); setEditing(false);}} />
+      </Sheet>
+    );
+  }
+  return (
+    <Sheet title={capitalize(formatLongDate(dateKey))} onClose={onClose}>
+      {log?.trained ? (
+        <>
+          <div className="ht-tag violet" style={{marginBottom:16, display:"inline-block"}}>{log.templateName || "Entrenamiento"}</div>
+          {log.exercises.map(ex=>(
+            <div key={ex.id} style={{marginBottom:14}}>
+              <div className="ht-row-title" style={{marginBottom:6}}>{ex.name}</div>
+              <div className="ht-row-sub">{ex.sets.map(s=>`${s.reps||"–"} rep × ${s.weight||"–"} kg`).join(" · ")}</div>
+            </div>
+          ))}
+          {log.bodyWeight!=null && <div className="ht-row-sub" style={{marginBottom:6}}>Peso corporal: <strong style={{color:"var(--teal)"}}>{log.bodyWeight} kg</strong></div>}
+          {log.notes && <div className="ht-row-sub" style={{marginBottom:20}}>«{log.notes}»</div>}
+          <div style={{display:"flex", gap:10, marginTop:10}}>
+            <button className="ht-btn ghost full" onClick={()=>setEditing(true)}><Icon name="pencil" size={15} /> Editar</button>
+            {!confirmDelete ? <button className="ht-btn ghost" onClick={()=>setConfirmDelete(true)}><Icon name="trash" size={15} /></button> :
+              <div className="ht-confirm">¿Eliminar?<button onClick={()=>onDelete(dateKey)}>Sí</button><button onClick={()=>setConfirmDelete(false)}>No</button></div>}
+          </div>
+        </>
+      ) : (
+        <>
+          {log?.bodyWeight!=null && <div className="ht-row-sub" style={{marginBottom:6}}>Peso corporal registrado: {log.bodyWeight} kg</div>}
+          {log?.notes && <div className="ht-row-sub" style={{marginBottom:16}}>«{log.notes}»</div>}
+          <div className="ht-empty" style={{padding:"10px 0 22px"}}>No hay entrenamiento registrado este día.</div>
+          <button className="ht-btn accent full" onClick={()=>setEditing(true)}><Icon name="plus" size={15} /> Añadir entrenamiento</button>
+        </>
+      )}
+    </Sheet>
+  );
+}
+
+/* ---------- Resumen ---------- */
+function computeStreak(logs, weekPlan){
+  let streak=0, cursor=new Date(); const tKey=todayKey();
+  for(let i=0;i<3650;i++){
+    const key=toKey(cursor); const log=logs[key];
+    if(log?.trained){ streak++; cursor=addDays(cursor,-1); continue; }
+    const planned = !!weekPlan[mondayIndex(cursor)];
+    if(key===tKey || !planned){ cursor=addDays(cursor,-1); continue; }
+    break;
+  }
+  return streak;
+}
+function ResumenView({logs, weekPlan, templates, onSaveLog, onDeleteLog}){
+  const [view, setView] = useState(()=>{ const d=new Date(); return {year:d.getFullYear(), month:d.getMonth()}; });
+  const [selectedKey, setSelectedKey] = useState(null);
+  const streak = useMemo(()=>computeStreak(logs, weekPlan), [logs, weekPlan]);
+  const totalWorkouts = useMemo(()=>Object.values(logs).filter(l=>l.trained).length, [logs]);
+  const monthTrained = useMemo(()=>Object.entries(logs).filter(([k,l])=>{const d=keyToDate(k); return l.trained && d.getFullYear()===view.year && d.getMonth()===view.month;}).length, [logs, view]);
+  const cells = useMemo(()=>{
+    const first=new Date(view.year, view.month, 1); const offset=mondayIndex(first);
+    const daysInMonth=new Date(view.year, view.month+1, 0).getDate();
+    const arr=[]; for(let i=0;i<offset;i++) arr.push(null);
+    for(let d=1;d<=daysInMonth;d++) arr.push(new Date(view.year, view.month, d));
+    return arr;
+  }, [view]);
+  function shiftMonth(delta){ setView(v=>{ let month=v.month+delta, year=v.year; if(month<0){month=11;year--;} else if(month>11){month=0;year++;} return {year,month}; }); }
+  return (
+    <div className="ht-section">
+      <div className="ht-screen-title">Resumen</div>
+      <div className="ht-stats-row">
+        <div><div className="ht-stat-number"><Icon name="flame" size={20} style={{color: streak>0?"var(--gold)":"var(--muted)"}} />{streak}</div><div className="ht-stat-label">racha (días)</div></div>
+        <div><div className="ht-stat-number" style={{color:"var(--teal)"}}>{monthTrained}</div><div className="ht-stat-label">este mes</div></div>
+        <div><div className="ht-stat-number">{totalWorkouts}</div><div className="ht-stat-label">total</div></div>
+      </div>
+      <div className="ht-cal-nav">
+        <button onClick={()=>shiftMonth(-1)}><Icon name="chevronLeft" size={18} /></button>
+        <div className="ht-cal-nav-title">{capitalize(MONTHS[view.month])} {view.year}</div>
+        <button onClick={()=>shiftMonth(1)}><Icon name="chevronRight" size={18} /></button>
+      </div>
+      <div className="ht-cal-grid" style={{marginBottom:4}}>{WEEKDAYS_SHORT.map((d,i)=>(<div className="ht-cal-dow" key={i}>{d}</div>))}</div>
+      <div className="ht-cal-grid">
+        {cells.map((date,i)=>{
+          if(!date) return <div className="ht-cal-cell empty" key={i} />;
+          const key=toKey(date); const log=logs[key]; const trained=!!log?.trained;
+          const planned=!!weekPlan[mondayIndex(date)]; const isToday=key===todayKey();
+          const classes=["ht-cal-cell"]; if(trained) classes.push("trained"); else if(planned) classes.push("planned"); if(isToday) classes.push("today");
+          return (<button key={i} className={classes.join(" ")} onClick={()=>setSelectedKey(key)}>{date.getDate()}{!trained && planned && <span className="ht-cal-dot" />}</button>);
+        })}
+      </div>
+      {selectedKey && <DayDetail dateKey={selectedKey} logs={logs} templates={templates} weekPlan={weekPlan} onClose={()=>setSelectedKey(null)} onSave={onSaveLog} onDelete={k=>{onDeleteLog(k); setSelectedKey(null);}} />}
+    </div>
+  );
+}
+
+/* ---------- Hoy ---------- */
+function HoyView({logs, weekPlan, templates, onSaveLog, showToast}){
+  const key = todayKey(); const d = new Date();
+  const plannedId = weekPlan[mondayIndex(d)]; const plannedTemplate = templates.find(t=>t.id===plannedId);
+  const existingLog = logs[key];
+  return (
+    <div className="ht-section">
+      <div className="ht-row-sub" style={{marginBottom:2}}>{capitalize(WEEKDAYS[mondayIndex(d)])}, {d.getDate()} de {MONTHS[d.getMonth()]}</div>
+      <div className="ht-screen-title" style={{color: existingLog?.trained?"var(--teal)":"var(--orange)"}}>
+        {existingLog?.trained ? "Entrenamiento de hoy" : (plannedTemplate ? plannedTemplate.name : "Día de descanso")}
+      </div>
+      {templates.length===0 ? (
+        <div className="ht-empty">Todavía no has creado ninguna rutina. Ve a la pestaña «Rutinas» para crear la primera.</div>
+      ) : (
+        <LogForm dateKey={key} initialLog={existingLog} templates={templates} weekPlan={weekPlan} logs={logs} onSave={(k,l)=>{onSaveLog(k,l); showToast("Entrenamiento guardado");}} />
+      )}
+    </div>
+  );
+}
+
+/* ---------- Rutinas ---------- */
+function RutinasView({templates, weekPlan, onSaveTemplates, onSaveWeekPlan, showToast}){
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  function saveTemplate(t){
+    const exists = templates.some(x=>x.id===t.id);
+    const next = exists ? templates.map(x=>x.id===t.id?t:x) : [...templates, t];
+    onSaveTemplates(next); setEditingTemplate(null); setCreating(false); showToast("Rutina guardada");
+  }
+  function deleteTemplate(id){
+    onSaveTemplates(templates.filter(t=>t.id!==id));
+    const nextPlan={...weekPlan}; Object.keys(nextPlan).forEach(k=>{ if(nextPlan[k]===id) nextPlan[k]=null; });
+    onSaveWeekPlan(nextPlan); setConfirmDeleteId(null); showToast("Rutina eliminada");
+  }
+  return (
+    <div className="ht-section">
+      <div className="ht-screen-title">Rutinas</div>
+      {templates.length===0 && <div className="ht-empty">Crea tu primera rutina para empezar.</div>}
+      {templates.map(t=>(
+        <div className="ht-row" key={t.id}>
+          <div><div className="ht-row-title">{t.name}</div><span className="ht-tag violet" style={{marginTop:6, display:"inline-block"}}>{t.exercises.length} ejercicios</span></div>
+          {confirmDeleteId===t.id ? (
+            <div className="ht-confirm">¿Eliminar?<button onClick={()=>deleteTemplate(t.id)}>Sí</button><button onClick={()=>setConfirmDeleteId(null)}>No</button></div>
+          ) : (
+            <div className="ht-row-actions">
+              <button className="ht-icon-btn" onClick={()=>setEditingTemplate(t)}><Icon name="pencil" size={16} /></button>
+              <button className="ht-icon-btn danger" onClick={()=>setConfirmDeleteId(t.id)}><Icon name="trash" size={16} /></button>
+            </div>
+          )}
+        </div>
+      ))}
+      <button className="ht-btn accent small" style={{marginTop:18}} onClick={()=>setCreating(true)}><Icon name="plus" size={15} /> Nueva rutina</button>
+      {(editingTemplate || creating) && <TemplateEditor initial={editingTemplate} onSave={saveTemplate} onCancel={()=>{setEditingTemplate(null); setCreating(false);}} />}
+    </div>
+  );
+}
+
+/* ---------- Semana ---------- */
+function SemanaView({templates, weekPlan, logs, onSaveWeekPlan, onImportAll, showToast}){
+  function setDay(idx, templateId){ onSaveWeekPlan({...weekPlan, [idx]: templateId||null}); showToast("Plan semanal actualizado"); }
+  function exportData(){
+    const blob = new Blob([JSON.stringify({templates, weekPlan, logs}, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download=`soriafitness-backup-${todayKey()}.json`; a.click(); URL.revokeObjectURL(url);
+  }
+  function importData(e){
+    const file = e.target.files?.[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{ try{ onImportAll(JSON.parse(reader.result)); showToast("Datos importados"); } catch{ showToast("Archivo no válido"); } };
+    reader.readAsText(file); e.target.value="";
+  }
+  return (
+    <div className="ht-section">
+      <div className="ht-screen-title">Plan semanal</div>
+      {templates.length===0 && <div className="ht-empty">Crea alguna rutina en la pestaña «Rutinas» para poder asignarla aquí.</div>}
+      {WEEKDAYS.map((day,idx)=>{
+        const assigned = !!weekPlan[idx];
+        return (
+          <div className="ht-row" key={idx}>
+            <div style={{display:"flex", alignItems:"center", gap:10}}>
+              <span style={{width:8, height:8, borderRadius:"50%", background: assigned?"var(--orange)":"var(--line)", flexShrink:0}} />
+              <div className="ht-row-title">{day}</div>
+            </div>
+            <select className="ht-select" style={{width:"auto", minWidth:150}} value={weekPlan[idx]||""} onChange={e=>setDay(idx, e.target.value)}>
+              <option value="">— Descanso —</option>
+              {templates.map(t=>(<option key={t.id} value={t.id}>{t.name}</option>))}
+            </select>
+          </div>
+        );
+      })}
+      <div className="ht-h2" style={{marginTop:30}}>Copia de seguridad</div>
+      <div style={{display:"flex", gap:10}}>
+        <button className="ht-btn ghost" onClick={exportData}><Icon name="download" size={15} /> Exportar</button>
+        <label className="ht-btn ghost" style={{margin:0}}><Icon name="upload" size={15} /> Importar<input type="file" accept="application/json" hidden onChange={importData} /></label>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Progreso ---------- */
+function SimpleLineChart({data}){
+  if(data.length<2) return <div className="ht-empty">Registra tu peso corporal en «Hoy» al menos dos días para ver la evolución.</div>;
+  const w=400, h=150, pad=20;
+  const weights = data.map(d=>d.weight); const min=Math.min(...weights), max=Math.max(...weights), range=max-min||1;
+  const stepX=(w-pad*2)/(data.length-1);
+  const points = data.map((d,i)=>{ const x=pad+i*stepX; const y=h-pad-((d.weight-min)/range)*(h-pad*2); return `${x},${y}`; });
+  return (
+    <div className="ht-chart-wrap">
+      <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="100%" preserveAspectRatio="none">
+        <polyline points={points.join(" ")} fill="none" stroke="var(--teal)" strokeWidth="2" />
+        {points.map((p,i)=>{ const [x,y]=p.split(","); return <circle key={i} cx={x} cy={y} r="2.5" fill="var(--teal)" />; })}
+      </svg>
+      <div style={{display:"flex", justifyContent:"space-between", fontSize:"0.68rem", color:"var(--muted)"}}>
+        <span>{formatShortDate(data[0].date)} · {data[0].weight}kg</span>
+        <span>{formatShortDate(data[data.length-1].date)} · {data[data.length-1].weight}kg</span>
+      </div>
+    </div>
+  );
+}
+function SimpleBarChart({data}){
+  const max = Math.max(1, ...data.map(d=>d.count));
+  return (
+    <div style={{display:"flex", gap:6, alignItems:"flex-end", height:100}}>
+      {data.map((d,i)=>(
+        <div key={i} style={{flex:1, textAlign:"center"}}>
+          <div style={{height:`${Math.max(4,(d.count/max)*80)}px`, background: d.count>0?"var(--orange)":"var(--line)", borderRadius:"3px 3px 0 0", marginBottom:4}} />
+          <div style={{fontSize:"0.6rem", color:"var(--muted)"}}>{d.label}</div>
+          <div style={{fontSize:"0.66rem", fontWeight:600}}>{d.count}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+function ProgresoView({logs}){
+  const bodyWeightSeries = useMemo(()=>Object.entries(logs).filter(([,l])=>l.bodyWeight!=null).map(([date,l])=>({date, weight:l.bodyWeight})).sort((a,b)=>(a.date<b.date?-1:1)), [logs]);
+  const weeklyFreq = useMemo(()=>{
+    const today=new Date(); const thisMonday=addDays(today, -mondayIndex(today)); const weeks=[];
+    for(let w=7; w>=0; w--){
+      const start=addDays(thisMonday, -w*7); const end=addDays(start,6);
+      const startKey=toKey(start), endKey=toKey(end);
+      const count = Object.entries(logs).filter(([k,l])=>l.trained && k>=startKey && k<=endKey).length;
+      weeks.push({label:`${start.getDate()}/${start.getMonth()+1}`, count});
+    }
+    return weeks;
+  }, [logs]);
+  const prList = useMemo(()=>{
+    const map={};
+    Object.entries(logs).forEach(([date,log])=>{
+      if(!log.trained) return;
+      log.exercises.forEach(ex=>{ ex.sets.forEach(s=>{ const w=parseFloat(s.weight); if(!isNaN(w) && (!map[ex.name] || w>map[ex.name].weight)) map[ex.name]={weight:w, reps:s.reps, date}; }); });
+    });
+    return Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0]));
+  }, [logs]);
+  return (
+    <div className="ht-section">
+      <div className="ht-screen-title">Progreso</div>
+      <div className="ht-h2">Peso corporal</div>
+      <SimpleLineChart data={bodyWeightSeries} />
+      <div className="ht-h2" style={{marginTop:30}}>Frecuencia semanal</div>
+      <SimpleBarChart data={weeklyFreq} />
+      <div className="ht-h2" style={{marginTop:30}}>Récords personales</div>
+      {prList.length===0 ? <div className="ht-empty">Registra pesos en tus entrenamientos para ver tus récords aquí.</div> :
+        prList.map(([name,pr])=>(
+          <div className="ht-row" key={name}>
+            <div className="ht-row-title">{name}</div>
+            <div style={{textAlign:"right"}}><div className="ht-row-title" style={{color:"var(--gold)"}}>{pr.weight} kg × {pr.reps||"–"}</div><div className="ht-row-sub">{formatShortDate(pr.date)}</div></div>
+          </div>
+        ))
+      }
+    </div>
+  );
+}
+
+/* ---------- navegación inferior ---------- */
+function BottomNav({active, onChange}){
+  const items = [
+    {id:"resumen", label:"Resumen", icon:"calendar"},
+    {id:"hoy", label:"Hoy", icon:"dumbbell"},
+    {id:"rutinas", label:"Rutinas", icon:"list"},
+    {id:"semana", label:"Semana", icon:"week"},
+    {id:"progreso", label:"Progreso", icon:"trend"},
+  ];
+  return (
+    <div className="ht-nav">
+      <div className="ht-nav-inner">
+        {items.map(it=>(
+          <button key={it.id} className={`ht-nav-btn ${active===it.id?"active":""}`} onClick={()=>onChange(it.id)}>
+            <Icon name={it.icon} size={18} />{it.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- app principal (guarda todo en localStorage, en el propio móvil) ---------- */
+function App(){
+  const [templates, setTemplates] = useState(()=>{ try{ const t=localStorage.getItem("soriafitness_templates"); return t?JSON.parse(t):[]; } catch { return []; } });
+  const [weekPlan, setWeekPlan] = useState(()=>{ try{ const w=localStorage.getItem("soriafitness_weekPlan"); return w?JSON.parse(w):{}; } catch { return {}; } });
+  const [logs, setLogs] = useState(()=>{ try{ const l=localStorage.getItem("soriafitness_logs"); return l?JSON.parse(l):{}; } catch { return {}; } });
+  const [tab, setTab] = useState("resumen");
+  const [toastNode, showToast] = useToast();
+
+  function persist(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); } catch { showToast("No se pudo guardar (memoria llena)"); } }
+  function saveTemplates(next){ setTemplates(next); persist("soriafitness_templates", next); }
+  function saveWeekPlan(next){ setWeekPlan(next); persist("soriafitness_weekPlan", next); }
+  function saveLog(dateKey, entry){ const next={...logs, [dateKey]:entry}; setLogs(next); persist("soriafitness_logs", next); }
+  function deleteLog(dateKey){ const next={...logs}; delete next[dateKey]; setLogs(next); persist("soriafitness_logs", next); showToast("Registro eliminado"); }
+  function importAll(data){
+    if(data.templates) saveTemplates(data.templates);
+    if(data.weekPlan) saveWeekPlan(data.weekPlan);
+    if(data.logs){ setLogs(data.logs); persist("soriafitness_logs", data.logs); }
+  }
+
+  return (
+    <div className="ht-outer">
+      <div className="ht-app">
+        <div className="ht-topbar">
+          <div className="ht-brand">soria<span>fitness</span></div>
+          <div className="ht-today-pill">{formatShortDate(todayKey())}</div>
+        </div>
+        {tab==="resumen" && <ResumenView logs={logs} weekPlan={weekPlan} templates={templates} onSaveLog={saveLog} onDeleteLog={deleteLog} />}
+        {tab==="hoy" && <HoyView logs={logs} weekPlan={weekPlan} templates={templates} onSaveLog={saveLog} showToast={showToast} />}
+        {tab==="rutinas" && <RutinasView templates={templates} weekPlan={weekPlan} onSaveTemplates={saveTemplates} onSaveWeekPlan={saveWeekPlan} showToast={showToast} />}
+        {tab==="semana" && <SemanaView templates={templates} weekPlan={weekPlan} logs={logs} onSaveWeekPlan={saveWeekPlan} onImportAll={importAll} showToast={showToast} />}
+        {tab==="progreso" && <ProgresoView logs={logs} />}
+        <BottomNav active={tab} onChange={setTab} />
+        {toastNode}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
